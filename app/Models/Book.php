@@ -5,13 +5,13 @@ namespace App\Models;
 use App\Database\Database;
 use PDOException;
 use App\Helpers\Errors\DatabaseException;
-class Book extends Product
+class Book extends Product implements \JsonSerializable
 {
     protected float $weight;
 
-    public function __construct(string $sku, string $name, float $price, int $id, string $type ,float $weight)
+    public function __construct(string $sku, string $name, float $price ,float $weight)
     {
-        parent::__construct($sku, $name, $price, $type, $id);
+        parent::__construct($sku, $name, $price);
         $this->weight = $weight;
     }
 
@@ -27,7 +27,7 @@ class Book extends Product
 
     public function save(): void
     {
-        parent::saveProduct('book');
+        parent::saveProduct('App\Models\Book');
         $db = new Database();
 
         $data = [
@@ -42,30 +42,6 @@ class Book extends Product
         } catch (PDOException $e) {
             throw new DatabaseException($e->getMessage(), $e->getCode(), $e, $this->weight);
         }
-    }
-
-    public static function findById(int $id): ?self
-    {
-        $db = new Database();
-        $query = "SELECT * FROM books WHERE id = :id";
-        $data = ['id' => $id];
-
-        try {
-            $result = $db->fetch($query, $data);
-        } catch (PDOException $e) {
-            throw new DatabaseException($e->getMessage(), $e->getCode(), $e, $id);
-        }
-
-        if (!$result) {
-            return null;
-        }
-
-        return new self(
-            $result['sku'],
-            $result['name'],
-            $result['price'],
-            $result['weight_kg']
-        );
     }
 
     public static function getAll(): array
@@ -109,14 +85,16 @@ class Book extends Product
             return null;
         }
 
-        return new self(
+        $product = new self(
             $result['sku'],
             $result['name'],
             $result['price'],
-            $result['product_id'],
-            $result['type'],
-            $result['weight_kg'],
+            $result['weight_kg']
         );
+
+        $product->setId($result['product_id']);
+
+        return $product;
     }
 
     public function display(): array
@@ -129,4 +107,15 @@ class Book extends Product
         ];
     }
 
+    public function jsonSerialize(): mixed
+    {
+        return [
+            'sku' => $this->sku,
+            'name' => $this->name,
+            'price' => $this->price,
+            'weight' => $this->weight,
+            'type' => "App\Models\Book",
+            'id' => $this->getId(),
+        ];
+    }
 }

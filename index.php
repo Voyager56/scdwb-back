@@ -11,6 +11,11 @@ class App {
             echo "Hello, world!";
         });
 
+        $router->get('/product', function () {
+            $productController = new ProductController();
+            $productController->index();
+        });
+
         $router->post('/product', function ($slug, $query) {
             $productController = new ProductController();
             $productController->store($slug, $query);

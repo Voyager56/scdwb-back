@@ -1,30 +1,35 @@
 <?php
 namespace App\Controllers;
 
-use App\Models\Product;
 use App\Models\Book;
+use App\Models\Product;
 
 class ProductController {
     private array $products = [
-        "book" => Book::class
+        "book" => Book::class,
     ];
-    public function __construct(){
+    
+    public function index()
+    {
+        $products = Product::getAll();
+        echo json_encode($products);
     }
 
     public function store($slug, $query): void
     {
-        $product_type = $query["type"];
+        $product_type = $this->products[$query["type"]];
         $data = $_POST;
-        $product = new $this->products[$product_type](...$data);
+        $product = new $product_type(...$data);
         $product->save();
-        echo json_encode($product->display());
+
+        var_dump(json_encode($product));
     }
 
     public function show($slug)
     {
         $id = $slug["id"];
-        $productType = Product::getProductType($id);
-        $product = $this->products[$productType]::findByProductId($id);
-        var_dump($product);
+        $product = Product::findById($id);
+
+        echo json_encode($product);
     }
 }

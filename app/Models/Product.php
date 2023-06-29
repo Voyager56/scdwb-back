@@ -17,13 +17,11 @@ abstract class Product
 
     protected string $product_type;
 
-    public function __construct(string $sku, string $name, float $price, string $type, int $id)
+    public function __construct(string $sku, string $name, float $price)
     {
         $this->sku = $sku;
         $this->name = $name;
         $this->price = $price;
-        $this->type = $type;
-        $this->id = $id;
     }
 
     public function getSku(): string
@@ -56,6 +54,16 @@ abstract class Product
         $this->price = $price;
     }
 
+    public function getId(): int
+    {
+        return $this->id;
+    }
+
+    public function setId(int $id): void
+    {
+        $this->id = $id;
+    }
+
     protected function saveProduct($product_type): void {
         $data = [
             'sku' => $this->sku,
@@ -70,15 +78,15 @@ abstract class Product
 
         try {
             $db->execute($query, $data);
-            $this->id = $db->getLastInsertId();
+            $this->setId($db->getLastInsertId());
         } catch (PDOException $e) {
             throw new DatabaseException($e->getMessage(), $e->getCode(), $e, $data);
         }
     }
 
-    public static function getProductType(string $id): ?string{
+    public static function findById(int $id){
         $db = new Database();
-        $query = "SELECT type FROM products WHERE id = :id";
+        $query = "SELECT * FROM products WHERE id = :id";
         $data = ['id' => $id];
 
         try {
@@ -91,9 +99,30 @@ abstract class Product
             return null;
         }
 
-        return $result['type'];
-
+        $product_type = $result['type'];
+        return $product_type::findByProductId($id);
     }
+
+    public static function getAll(){
+        $db = new Database();
+        $query = "SELECT * FROM products";
+
+        try {
+            $result = $db->fetchAll($query);
+        } catch (PDOException $e) {
+            throw new DatabaseException($e->getMessage(), $e->getCode(), $e);
+        }
+
+        $products = [];
+
+        foreach ($result as $product) {
+            $product_type = $product['type'];
+            $products[] = $product_type::findByProductId($product['id']);
+        }
+
+        return $products;
+    }
+
     abstract public function save(): void;
     abstract public function display(): array;
 
