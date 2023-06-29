@@ -5,6 +5,8 @@ require_once __DIR__ . '/autoload.php';
 use App\Database\Database;
 use App\Database\Migrations\CreateBooksTable;
 use App\Database\Migrations\CreateProductsTable;
+use App\Database\Migrations\CreateDvdTable;
+use App\Database\Migrations\CreateFurnitureTable;
 use App\Helpers\Errors\DatabaseException;
 
 class MigrationScript
@@ -20,6 +22,8 @@ class MigrationScript
         $this->migrations = [
             new CreateProductsTable($this->pdo),
             new CreateBooksTable($this->pdo),
+            new CreateDvdTable($this->pdo),
+            new CreateFurnitureTable($this->pdo),
         ];
     }
 
@@ -71,6 +75,9 @@ class MigrationScript
         }
     }
 }
+
+$autoload = new AutoLoad();
+$autoload->run();
 
 $migrationScript = new MigrationScript();
 $migrationScript->run();
