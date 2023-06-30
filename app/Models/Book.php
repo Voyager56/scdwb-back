@@ -3,8 +3,10 @@
 namespace App\Models;
 
 use App\Database\Database;
+use App\Exceptions\DatabaseException;
+use App\Exceptions\RequestValidationException;
 use PDOException;
-use App\Helpers\Errors\DatabaseException;
+
 class Book extends Product implements \JsonSerializable
 {
     protected float $weight;
@@ -27,6 +29,11 @@ class Book extends Product implements \JsonSerializable
 
     public function save(): void
     {
+
+        if($this->weight <= 0) {
+            throw new RequestValidationException(['weight' => 'Weight must be greater than 0']);
+        }
+
         parent::saveProduct('App\Models\Book');
         $db = new Database();
 
@@ -40,6 +47,8 @@ class Book extends Product implements \JsonSerializable
         try {
             $db->execute($query, $data);
         } catch (PDOException $e) {
+            $query = "DELETE FROM products WHERE id = :id";
+            $db->execute($query, ['id' => $db->getLastInsertId()]);
             throw new DatabaseException($e->getMessage(), $e->getCode(), $e, $this->weight);
         }
     }
@@ -103,19 +112,14 @@ class Book extends Product implements \JsonSerializable
             'sku' => $this->sku,
             'name' => $this->name,
             'price' => $this->price,
-            'weight' => $this->weight
+            'weight' => $this->weight,
+            'type' => "App\Models\Book",
+            'id' => $this->getId(),
         ];
     }
 
     public function jsonSerialize(): mixed
     {
-        return [
-            'sku' => $this->sku,
-            'name' => $this->name,
-            'price' => $this->price,
-            'weight' => $this->weight,
-            'type' => "App\Models\Book",
-            'id' => $this->getId(),
-        ];
+        return $this->display();
     }
 }

@@ -3,15 +3,17 @@
 namespace App\Models;
 
 use App\Database\Database;
+use App\Exceptions\DatabaseException;
+use App\Exceptions\RequestValidationException;
 use PDOException;
-use App\Helpers\Errors\DatabaseException;
-class DvdDisc extends Product
+
+class DvdDisc extends Product implements \JsonSerializable
 {
     protected int $size;
 
-    public function __construct(string $sku, string $name, float $price, string $type, int $id, int $size)
+    public function __construct(string $sku, string $name, float $price, int $size)
     {
-        parent::__construct($sku, $name, $price, $type, $id);
+        parent::__construct($sku, $name, $price);
         $this->size = $size;
     }
 
@@ -27,6 +29,11 @@ class DvdDisc extends Product
 
     public function save(): void
     {
+
+        if($this->size <= 0) {
+            throw new   RequestValidationException(['size' => 'Size must be greater than 0']);
+        }
+
         parent::saveProduct('App\Models\DvdDisc');
         $db = new Database();
 
@@ -40,6 +47,8 @@ class DvdDisc extends Product
         try {
             $db->execute($query, $data);
         } catch (PDOException $e) {
+            $query = "DELETE FROM products WHERE id = :id";
+            $db->execute($query, ['id' => $db->getLastInsertId()]);
             throw new DatabaseException($e->getMessage(), $e->getCode(), $e, $this->size);
         }
 
@@ -49,11 +58,50 @@ class DvdDisc extends Product
 
     public function display(): array
     {
-        // TODO: Implement display() method.
+        return [
+            'sku' => $this->sku,
+            'name' => $this->name,
+            'price' => $this->price,
+            'size' => $this->size,
+            'type' => 'App\Models\DvdDisc',
+            'id' => $this->getId()
+        ];
     }
 
     public static function findByProductId(int $id)
     {
         // TODO: Implement findByProductId() method.
+
+        $db = new Database();
+        $query = "SELECT * FROM dvds WHERE product_id = :id";
+        $data = ['id' => $id];
+
+        try {
+            $result = $db->fetch($query, $data);
+        } catch (PDOException $e) {
+            throw new DatabaseException($e->getMessage(), $e->getCode(), $e);
+        }
+
+        if (empty($results)) {
+            return null;
+        }
+
+        $dvd = new DvdDisc(
+            $result['sku'],
+            $result['name'],
+            $result['price'],
+            $result['size_mb']
+        );
+
+        $dvd->setId($id);
+
+        return $dvd;
+    }
+
+
+    public function jsonSerialize(): mixed
+    {
+        // TODO: Implement jsonSerialize() method.
+        return $this->display();
     }
 }

@@ -3,8 +3,8 @@
 namespace App\Models;
 
 use App\Database\Database;
+use App\Exceptions\DatabaseException;
 use PDOException;
-use App\Helpers\Errors\DatabaseException;
 
 abstract class Product
 {
@@ -71,7 +71,6 @@ abstract class Product
             'price' => $this->price,
             'type' => $product_type
         ];
-
         $db = new Database();
 
         $query = "INSERT INTO products (sku, name, price, type) VALUES (:sku, :name, :price, :type)";
@@ -80,7 +79,11 @@ abstract class Product
             $db->execute($query, $data);
             $this->setId($db->getLastInsertId());
         } catch (PDOException $e) {
-            throw new DatabaseException($e->getMessage(), $e->getCode(), $e, $data);
+            if($e->getCode() == '23000') {
+                throw new DatabaseException('SKU already exists', $e->getCode(), $e);
+            }else {
+                throw new DatabaseException($e->getMessage(), $e->getCode(), $e);
+            }
         }
     }
 
