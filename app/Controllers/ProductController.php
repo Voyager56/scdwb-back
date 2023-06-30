@@ -28,9 +28,11 @@ class ProductController {
             $product = new $product_type(...$data);
             $product->save();
         }catch(RequestValidationException $e){
-            echo json_encode($e->getErrors());
+            echo json_encode(['errors' => $e->getErrors()]);
+            return;
         }catch(\Exception $e){
-            echo json_encode($e->getMessage());
+            echo json_encode(['errors' => $e->getMessage()]);
+            return;
         }
 
         echo json_encode($product);
