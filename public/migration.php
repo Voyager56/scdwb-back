@@ -4,10 +4,10 @@ require_once __DIR__ . '/autoload.php';
 
 use App\Database\Database;
 use App\Database\Migrations\CreateBooksTable;
-use App\Database\Migrations\CreateProductsTable;
 use App\Database\Migrations\CreateDvdTable;
 use App\Database\Migrations\CreateFurnitureTable;
-use App\Helpers\Errors\DatabaseException;
+use App\Database\Migrations\CreateProductsTable;
+use App\Exceptions\DatabaseException;
 
 class MigrationScript
 {

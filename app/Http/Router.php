@@ -42,8 +42,13 @@ class Router
                 $callback = $route['callback'];
 
                 if (is_callable($callback)) {
-                    $this->invokeCallback($callback, $params);
-                    return;
+                    try {
+                        $this->invokeCallback($callback, $params);
+                        return;
+                    } catch (\Throwable $e) {
+                        $this->renderErrorPage(500, $e->getMessage());
+                        return;
+                    }
                 } else {
                     $this->renderErrorPage(500, 'Invalid callback specified for route.');
                     return;

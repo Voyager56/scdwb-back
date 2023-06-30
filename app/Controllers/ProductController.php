@@ -1,12 +1,17 @@
 <?php
 namespace App\Controllers;
 
+use App\Exceptions\RequestValidationException;
 use App\Models\Book;
+use App\Models\DvdDisc;
+use App\Models\Furniture;
 use App\Models\Product;
 
 class ProductController {
     private array $products = [
         "book" => Book::class,
+        'furniture' =>  Furniture::class,
+        'dvd' => DvdDisc::class
     ];
     
     public function index()
@@ -19,10 +24,16 @@ class ProductController {
     {
         $product_type = $this->products[$query["type"]];
         $data = $_POST;
-        $product = new $product_type(...$data);
-        $product->save();
+        try{
+            $product = new $product_type(...$data);
+            $product->save();
+        }catch(RequestValidationException $e){
+            echo json_encode($e->getErrors());
+        }catch(\Exception $e){
+            echo json_encode($e->getMessage());
+        }
 
-        var_dump(json_encode($product));
+        echo json_encode($product);
     }
 
     public function show($slug)

@@ -2,10 +2,10 @@
 
 namespace App\Database;
 
-use App\Helpers\Errors\DatabaseException;
+use App\Helpers\Env\EnvLoader;
 use PDO;
 use PDOException;
-use App\Helpers\Env\EnvLoader;
+
 class Database
 {
     private static ?PDO $connection = null;
@@ -32,12 +32,8 @@ class Database
 
     public static function execute(string $query, array $params = []): bool
     {
-        try {
             $stmt = self::getConnection()->prepare($query);
             return $stmt->execute($params);
-        } catch (PDOException $e) {
-            die('Query execution failed: ' . $e->getMessage());
-        }
     }
 
     public static function fetch(string $query, array $params = []): array
