@@ -19,9 +19,7 @@ class Furniture extends Product implements \JsonSerializable
 
     public function __construct(string $sku, string $name, float $price, string $height, string $width, string $length)
     {
-        $this->sku = $sku;
-        $this->name = $name;
-        $this->price = $price;
+        parent::__construct($sku, $name, $price);
         $this->height = $height;
         $this->width = $width;
         $this->length = $length;
@@ -138,7 +136,7 @@ class Furniture extends Product implements \JsonSerializable
         ];
     }
 
-    public static function findByProductId(int $id)
+    public static function findByProductId(int $id): ?Furniture
     {
         // TODO: Implement findByProductId() method.
 
@@ -168,7 +166,7 @@ class Furniture extends Product implements \JsonSerializable
         return $furniture;
     }
 
-    public function jsonSerialize(): mixed
+    public function jsonSerialize(): array
     {
         // TODO: Implement jsonSerialize() method.
         return $this->display();

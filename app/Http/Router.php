@@ -6,17 +6,17 @@ class Router
 {
     private $routes = [];
 
-    public function get($path, $callback)
+    public function get($path, $callback): void
     {
         $this->addRoute('GET', $path, $callback);
     }
 
-    public function post($path, $callback)
+    public function post($path, $callback): void
     {
         $this->addRoute('POST', $path, $callback);
     }
 
-    public function delete($path, $callback)
+    public function delete($path, $callback): void
     {
         $this->addRoute('DELETE', $path, $callback);
     }

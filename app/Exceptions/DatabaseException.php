@@ -16,7 +16,7 @@ class DatabaseException extends PDOException
 
     }
 
-    public function getCustomMessage()
+    public function getCustomMessage(): string
     {
         return "An error occurred: " . $this->getMessage()  . "Context: " . $this->getContext() . "\n";
     }

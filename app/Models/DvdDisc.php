@@ -68,7 +68,7 @@ class DvdDisc extends Product implements \JsonSerializable
         ];
     }
 
-    public static function findByProductId(int $id)
+    public static function findByProductId(int $id): ?DvdDisc
     {
         // TODO: Implement findByProductId() method.
 
@@ -99,7 +99,7 @@ class DvdDisc extends Product implements \JsonSerializable
     }
 
 
-    public function jsonSerialize(): mixed
+    public function jsonSerialize(): array
     {
         // TODO: Implement jsonSerialize() method.
         return $this->display();

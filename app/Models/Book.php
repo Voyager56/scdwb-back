@@ -53,32 +53,7 @@ class Book extends Product implements \JsonSerializable
         }
     }
 
-    public static function getAll(): array
-    {
-        $db = new Database();
-        $query = "SELECT * FROM books";
-        $data = [];
-
-        try {
-            $results = $db->fetchAll($query, $data);
-        } catch (PDOException $e) {
-            throw new DatabaseException($e->getMessage(), $e->getCode(), $e);
-        }
-
-        $books = [];
-        foreach ($results as $result) {
-            $books[] = new self(
-                $result['sku'],
-                $result['name'],
-                $result['price'],
-                $result['weight_kg']
-            );
-        }
-
-        return $books;
-    }
-
-    public static function findByProductId(int $id)
+    public static function findByProductId(int $id): ?Book
     {
         $db = new Database();
         $query = "SELECT * FROM books JOIN products ON books.product_id = products.id WHERE books.product_id = :id";
@@ -118,7 +93,7 @@ class Book extends Product implements \JsonSerializable
         ];
     }
 
-    public function jsonSerialize(): mixed
+    public function jsonSerialize(): array
     {
         return $this->display();
     }

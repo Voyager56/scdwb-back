@@ -14,7 +14,7 @@ class ProductController {
         'dvd' => DvdDisc::class
     ];
     
-    public function index()
+    public function index(): void
     {
         $products = Product::getAll();
         echo json_encode($products);
@@ -36,7 +36,7 @@ class ProductController {
         echo json_encode($product);
     }
 
-    public function show($slug)
+    public function show($slug): void
     {
         $id = $slug["id"];
         $product = Product::findById($id);

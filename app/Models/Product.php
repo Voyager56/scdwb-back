@@ -106,7 +106,8 @@ abstract class Product
         return $product_type::findByProductId($id);
     }
 
-    public static function getAll(){
+    public static function getAll(): array
+    {
         $db = new Database();
         $query = "SELECT * FROM products";
 
