@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Helpers\Errors;
+namespace App\Exceptions;
 
 use PDOException;
 
