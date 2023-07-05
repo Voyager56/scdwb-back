@@ -91,8 +91,8 @@ class ProductController {
         $data = $_POST;
         $ids = $data["ids"];
         try {
-            $deleted_values = Product::massDelete($ids);
-            echo json_encode(['success' => true, 'deleted_values' => $deleted_values]);
+            Product::massDelete($ids);
+            echo json_encode(['success' => true]);
         } catch (\Exception $e) {
             $this->sendErrorResponse($e->getMessage());
         }

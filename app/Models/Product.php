@@ -135,25 +135,19 @@ abstract class Product
             $product_type = $product['type'];
             $products[] = $product_type::findByProductId($product);
         }
-
+        
         return array_reverse($products);
     }
 
     public static function massDelete(array $ids){
-        $deleted = [];
-        foreach ($ids as $id) {
-            try {
-                $product = self::findById($id);
-                if (!$product) {
-                    continue;
-                }
-                $deleted[] = $product->display();
-                $product->delete();
-            } catch (DatabaseException $e) {
-                throw new DatabaseException($e->getMessage(), $e->getCode(), $e, $id);
-            }
+        $db = new Database();
+        $query = "DELETE FROM products WHERE id IN (".implode(',', $ids).")";
+        try {
+            $db->execute($query);
+            $deleted = $ids;
+        } catch (PDOException $e) {
+            throw new DatabaseException($e->getMessage(), $e->getCode(), $e, $ids);
         }
-        return $deleted;
     }
 
     abstract public function save(): void;

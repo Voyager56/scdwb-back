@@ -132,7 +132,7 @@ class Furniture extends Product implements \JsonSerializable
             'width' => $this->width,
             'length' => $this->length,
             'type' => 'App\Models\Furniture',
-            $id = $this->getId()
+             'id' => $this->getId()
         ];
     }
 
@@ -163,6 +163,7 @@ class Furniture extends Product implements \JsonSerializable
         );
 
         $furniture->setId($product_data['id']);
+
         return $furniture;
     }
 
