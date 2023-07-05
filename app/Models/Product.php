@@ -139,6 +139,23 @@ abstract class Product
         return array_reverse($products);
     }
 
+    public static function massDelete(array $ids){
+        $deleted = [];
+        foreach ($ids as $id) {
+            try {
+                $product = self::findById($id);
+                if (!$product) {
+                    continue;
+                }
+                $deleted[] = $product->display();
+                $product->delete();
+            } catch (DatabaseException $e) {
+                throw new DatabaseException($e->getMessage(), $e->getCode(), $e, $id);
+            }
+        }
+        return $deleted;
+    }
+
     abstract public function save(): void;
     abstract public function display(): array;
 

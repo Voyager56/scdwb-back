@@ -36,6 +36,11 @@ class App {
             $productController = new ProductController();
             $productController->delete($slug);
         });
+
+        $router->post('/product/massDelete', function () {
+            $productController = new ProductController();
+            $productController->massDelete();
+        });
     }
     public function run(): void {
         header("Access-Control-Allow-Origin: * ");

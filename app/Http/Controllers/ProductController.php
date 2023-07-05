@@ -87,6 +87,16 @@ class ProductController {
         }
     }
 
+    public function massDelete(){
+        $data = $_POST;
+        $ids = $data["ids"];
+        try {
+            $deleted_values = Product::massDelete($ids);
+            echo json_encode(['success' => true, 'deleted_values' => $deleted_values]);
+        } catch (\Exception $e) {
+            $this->sendErrorResponse($e->getMessage());
+        }
+    }
     private function sendErrorResponse($message): void
     {
         header('Content-Type: application/json');
