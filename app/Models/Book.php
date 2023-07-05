@@ -53,27 +53,27 @@ class Book extends Product implements \JsonSerializable
         }
     }
 
-    public static function findByProductId(int $id): ?Book
+    public static function findByProductId(array $product_data): ?Book
     {
         $db = new Database();
         $query = "SELECT * FROM books JOIN products ON books.product_id = products.id WHERE books.product_id = :id";
-        $data = ['id' => $id];
+        $data = ['id' => $product_data['id']];
 
         try {
             $result = $db->fetch($query, $data);
         } catch (PDOException $e) {
-            throw new DatabaseException($e->getMessage(), $e->getCode(), $e, $id);
+            throw new DatabaseException($e->getMessage(), $e->getCode(), $e);
         }
 
-        if (!$result) {
+        if (empty($result)) {
             return null;
         }
 
         $product = new self(
-            $result['sku'],
-            $result['name'],
-            $result['price'],
-            $result['weight_kg']
+            $product_data['sku'],
+            $product_data['name'],
+            $product_data['price'],
+            weight: $result['weight_kg']
         );
 
         $product->setId($result['product_id']);

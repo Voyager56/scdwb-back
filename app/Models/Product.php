@@ -121,14 +121,14 @@ abstract class Product
 
         foreach ($result as $product) {
             $product_type = $product['type'];
-            $products[] = $product_type::findByProductId($product['id']);
+            $products[] = $product_type::findByProductId($product);
         }
 
-        return $products;
+        return array_reverse($products);
     }
 
     abstract public function save(): void;
     abstract public function display(): array;
 
-    abstract public static function findByProductId(int $id);
+    abstract public static function findByProductId(array $product_data);
 }

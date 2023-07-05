@@ -136,33 +136,33 @@ class Furniture extends Product implements \JsonSerializable
         ];
     }
 
-    public static function findByProductId(int $id): ?Furniture
+    public static function findByProductId(array $product_data): ?Furniture
     {
         // TODO: Implement findByProductId() method.
 
         $db = new Database();
         $query = "SELECT * FROM furniture WHERE product_id = :id";
+        $data = ['id' => $product_data['id']];
 
         try {
-            $result = $db->fetch($query, ['id' => $id]);
+            $result = $db->fetch($query, $data);
         } catch (PDOException $e) {
             throw new DatabaseException($e->getMessage());
         }
-
         if (empty($result)) {
             return null;
         }
 
         $furniture =  new Furniture(
-            $result['sku'],
-            $result['name'],
-            $result['price'],
-            $result['height'],
-            $result['width'],
-            $result['length']
+            $product_data['sku'],
+            $product_data['name'],
+            $product_data['price'],
+            height: $result['height_cm'],
+            width: $result['width_cm'],
+            length: $result['length_cm']
         );
 
-        $furniture->setId($id);
+        $furniture->setId($product_data['id']);
         return $furniture;
     }
 

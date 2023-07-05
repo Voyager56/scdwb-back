@@ -68,13 +68,13 @@ class DvdDisc extends Product implements \JsonSerializable
         ];
     }
 
-    public static function findByProductId(int $id): ?DvdDisc
+    public static function findByProductId(array $product_data): ?DvdDisc
     {
         // TODO: Implement findByProductId() method.
 
         $db = new Database();
         $query = "SELECT * FROM dvds WHERE product_id = :id";
-        $data = ['id' => $id];
+        $data = ['id' => $product_data['id']];
 
         try {
             $result = $db->fetch($query, $data);
@@ -82,18 +82,18 @@ class DvdDisc extends Product implements \JsonSerializable
             throw new DatabaseException($e->getMessage(), $e->getCode(), $e);
         }
 
-        if (empty($results)) {
+        if (empty($result)) {
             return null;
         }
 
         $dvd = new DvdDisc(
-            $result['sku'],
-            $result['name'],
-            $result['price'],
+            $product_data['sku'],
+            $product_data['name'],
+            $product_data['price'],
             $result['size_mb']
         );
 
-        $dvd->setId($id);
+        $dvd->setId($product_data['id']);
 
         return $dvd;
     }
