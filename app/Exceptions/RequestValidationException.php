@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Exceptions;
+use Throwable;
 
 class RequestValidationException extends \Exception
 {

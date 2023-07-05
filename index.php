@@ -1,8 +1,8 @@
 <?php
 require_once __DIR__ . '/./public/autoload.php';
 
-use App\Http\Router;
-use App\Controllers\ProductController;
+use app\Http\Controllers\ProductController;
+use app\Http\Router\Router;
 
 
 class App {
@@ -16,9 +16,9 @@ class App {
             $productController->index();
         });
 
-        $router->post('/product', function ($slug, $query) {
+        $router->post('/product', function () {
             $productController = new ProductController();
-            $productController->store($slug, $query);
+            $productController->store();
         });
 
         $router->get('/product/{id}', function ($slug) {
@@ -27,6 +27,7 @@ class App {
         });
     }
     public function run(): void {
+        header("Access-Control-Allow-Origin: * ");
         $this->router->handleRequest($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']);
     }
 }

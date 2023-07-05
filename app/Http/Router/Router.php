@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http;
+namespace app\Http\Router;
 
 class Router
 {
@@ -31,15 +31,9 @@ class Router
         }
 
         foreach ($this->routes as $route) {
-            if ($route['method'] === $method && preg_match($route['pattern'], $parsedUri['path'], $matches)) {
-                array_shift($matches); // Remove the first match (full path)
-
-                $params = [
-                    'slug' => $matches,        // Pass slug parameters
-                    'query' => $queryParams,   // Pass query parameters
-                ];
-
-                $callback = $route['callback'];
+            if ($route->matches($method, $parsedUri['path'], $queryParams)) {
+                $params = $route->extractParameters($parsedUri['path']);
+                $callback = $route->getCallback();
 
                 if (is_callable($callback)) {
                     try {
@@ -61,14 +55,7 @@ class Router
 
     private function addRoute($method, $path, $callback): void
     {
-        $pattern = '#^' . preg_replace('/\{([a-zA-Z][a-zA-Z0-9_]*)\}/', '(?<$1>[^/]+)', $path) . '$#';
-
-        $this->routes[] = [
-            'method' => $method,
-            'path' => $path,
-            'pattern' => $pattern,
-            'callback' => $callback
-        ];
+        $this->routes[] = new Route($method, $path, $callback);
     }
 
     private function invokeCallback($callback, $params): void
@@ -98,7 +85,11 @@ class Router
                 $args[] = $params[$paramName] ?? null;
             }
 
-            $reflectionFunction->invokeArgs($args);
+            if (count($args) === count($reflectionParams)) {
+                $reflectionFunction->invokeArgs($args);
+            } else {
+                $this->sendErrorResponse('Invalid number of arguments for callback function.');
+            }
         }
     }
 
@@ -107,16 +98,26 @@ class Router
         http_response_code($statusCode);
 
         echo <<<HTML
-                <!DOCTYPE html>
-                <html lang="en">
-                <head>
-                    <title>Error</title>
-                </head>
-                <body>
-                    <h1>Error $statusCode</h1>
-                    <p>$message</p>
-                </body>
-                </html>
-            HTML;
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+                <title>Error</title>
+            </head>
+            <body>
+                <h1>Error $statusCode</h1>
+                <p>$message</p>
+            </body>
+            </html>
+        HTML;
+    }
+
+    private function sendErrorResponse($message): void
+    {
+        header('Content-Type: application/json');
+        http_response_code(400);
+        echo json_encode(['error' => $message]);
+        exit();
     }
 }
+
+
