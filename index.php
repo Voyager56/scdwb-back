@@ -1,8 +1,8 @@
 <?php
 require_once __DIR__ . '/./public/autoload.php';
 
-use app\Http\Controllers\ProductController;
-use app\Http\Router\Router;
+use App\Http\Controllers\ProductController;
+use App\Http\Router\Router;
 
 
 class App {
@@ -24,6 +24,17 @@ class App {
         $router->get('/product/{id}', function ($slug) {
             $productController = new ProductController();
             $productController->show($slug);
+        });
+
+//        delete method working with postman but not with 000webhost
+//        $router->delete('/product/{id}', function ($slug) {
+//            $productController = new ProductController();
+//            $productController->delete($slug);
+//        });
+
+        $router->post('/product/delete/{id}', function ($slug) {
+            $productController = new ProductController();
+            $productController->delete($slug);
         });
     }
     public function run(): void {

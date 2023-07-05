@@ -1,5 +1,6 @@
-<?php 
-namespace app\Http\Router;
+<?php
+
+namespace App\Http\Router;
 
 class Route
 {
@@ -16,7 +17,7 @@ class Route
         $this->callback = $callback;
     }
 
-    public function matches($method, $uri, $queryParams): bool
+    public function matches($method, $uri): bool
     {
         $parsedUri = parse_url($uri);
 
@@ -25,7 +26,7 @@ class Route
             preg_match($this->pattern, $parsedUri['path']);
     }
 
-    public function extractParameters($uri): array
+    public function extractSlugParameters($uri): array
     {
         $matches = [];
         preg_match($this->pattern, $uri, $matches);

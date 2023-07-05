@@ -103,7 +103,19 @@ abstract class Product
         }
 
         $product_type = $result['type'];
-        return $product_type::findByProductId($id);
+        return $product_type::findByProductId($result);
+    }
+
+    public function delete(){
+        $db = new Database();
+        $query = "DELETE FROM products WHERE id = :id";
+        $data = ['id' => $this->id];
+
+        try {
+            $db->execute($query, $data);
+        } catch (PDOException $e) {
+            throw new DatabaseException($e->getMessage(), $e->getCode(), $e, $this->id);
+        }
     }
 
     public static function getAll(): array

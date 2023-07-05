@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Database;
 
 use App\Helpers\Env\EnvLoader;
@@ -32,32 +31,33 @@ class Database
 
     public static function execute(string $query, array $params = []): bool
     {
-            $stmt = self::getConnection()->prepare($query);
-            return $stmt->execute($params);
+        $stmt = self::getConnection()->prepare($query);
+        return $stmt->execute($params);
     }
 
-    public static function fetch(string $query, array $params = []): array
+    public static function fetch(string $query, array $params = []): ?array
     {
         try {
             $stmt = self::getConnection()->prepare($query);
             $stmt->execute($params);
-            return $stmt->fetch();
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $result ? $result : null;
         } catch (PDOException $e) {
             die('Query execution failed: ' . $e->getMessage());
         }
     }
 
-    public static function fetchAll(string $query, array $params = []): array
+    public static function fetchAll(string $query, array $params = []): ?array
     {
         try {
             $stmt = self::getConnection()->prepare($query);
             $stmt->execute($params);
-            return $stmt->fetchAll();
+            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            return $result ? $result : null;
         } catch (PDOException $e) {
             die('Query execution failed: ' . $e->getMessage());
         }
     }
-
 
     public static function getLastInsertId(): string
     {

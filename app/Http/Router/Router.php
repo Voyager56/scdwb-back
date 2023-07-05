@@ -1,7 +1,8 @@
 <?php
 
-namespace app\Http\Router;
+namespace App\Http\Router;
 
+use App\Http\Router\Route;
 class Router
 {
     private $routes = [];
@@ -31,13 +32,14 @@ class Router
         }
 
         foreach ($this->routes as $route) {
-            if ($route->matches($method, $parsedUri['path'], $queryParams)) {
-                $params = $route->extractParameters($parsedUri['path']);
+            if ($route->matches($method, $parsedUri['path'])) {
+                $slug = $route->extractSlugParameters($parsedUri['path']);
+                $query = $queryParams;
                 $callback = $route->getCallback();
 
                 if (is_callable($callback)) {
                     try {
-                        $this->invokeCallback($callback, $params);
+                        $this->invokeCallback($callback, $slug, $query);
                         return;
                     } catch (\Throwable $e) {
                         $this->renderErrorPage(500, $e->getMessage());
@@ -58,7 +60,7 @@ class Router
         $this->routes[] = new Route($method, $path, $callback);
     }
 
-    private function invokeCallback($callback, $params): void
+    private function invokeCallback($callback, $slug, $query): void
     {
         if (is_array($callback)) {
             $object = $callback[0];
@@ -70,7 +72,13 @@ class Router
 
             foreach ($reflectionParams as $param) {
                 $paramName = $param->getName();
-                $args[] = $params[$paramName] ?? null;
+                if ($paramName === 'slug') {
+                    $args[] = $slug;
+                } elseif ($paramName === 'query') {
+                    $args[] = $query;
+                } else {
+                    $args[] = null;
+                }
             }
 
             $reflectionMethod->invokeArgs($object, $args);
@@ -82,14 +90,16 @@ class Router
 
             foreach ($reflectionParams as $param) {
                 $paramName = $param->getName();
-                $args[] = $params[$paramName] ?? null;
+                if ($paramName === 'slug') {
+                    $args[] = $slug;
+                } elseif ($paramName === 'query') {
+                    $args[] = $query;
+                } else {
+                    $args[] = null;
+                }
             }
 
-            if (count($args) === count($reflectionParams)) {
-                $reflectionFunction->invokeArgs($args);
-            } else {
-                $this->sendErrorResponse('Invalid number of arguments for callback function.');
-            }
+            $reflectionFunction->invokeArgs($args);
         }
     }
 
@@ -105,19 +115,9 @@ class Router
             </head>
             <body>
                 <h1>Error $statusCode</h1>
-                <p>$message</p>
+                <<p>$message</p>
             </body>
             </html>
         HTML;
     }
-
-    private function sendErrorResponse($message): void
-    {
-        header('Content-Type: application/json');
-        http_response_code(400);
-        echo json_encode(['error' => $message]);
-        exit();
-    }
 }
-
-

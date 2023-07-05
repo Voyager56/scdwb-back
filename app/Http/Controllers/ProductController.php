@@ -58,9 +58,33 @@ class ProductController {
     public function show($slug): void
     {
         $id = $slug["id"];
-        $product = Product::findById($id);
-
+        try {
+            $product = Product::findById($id);
+        } catch (\Exception $e) {
+            $this->sendErrorResponse($e->getMessage());
+        }
         echo json_encode($product);
+    }
+
+    public function delete($slug): void
+    {
+        $id = $slug["id"];
+        try {
+            $product = Product::findById($id);
+        } catch (\Exception $e) {
+            $this->sendErrorResponse($e->getMessage());
+        }
+
+        if (!$product) {
+            $this->sendErrorResponse("Product not found");
+        }
+
+        try {
+            $product->delete();
+            echo json_encode(['success' => true]);
+        } catch (\Exception $e) {
+            $this->sendErrorResponse($e->getMessage());
+        }
     }
 
     private function sendErrorResponse($message): void
